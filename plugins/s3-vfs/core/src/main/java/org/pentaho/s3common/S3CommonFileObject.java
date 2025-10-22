@@ -466,8 +466,9 @@ public abstract class S3CommonFileObject extends AbstractFileObject<S3CommonFile
     try {
       logger.info( "Uploading to S3 from {} to {}", src.getName(), this.getName() );
       fileSystem.upload( src, dst );
-    } catch ( Exception e ) {
+    } catch ( FileSystemException e ) {
       logger.error( "Upload failed: {}", e.getMessage(), e );
+      throw e;
     }
   }
 
