@@ -104,8 +104,8 @@ public class SSHData extends BaseStepData implements StepDataInterface {
         }
       }
 
-      // and connect
-      if ( timeOut == 0 ) {
+      // and connect (PDI-20898: timeout=0 and negative values mean infinite timeout)
+      if ( timeOut <= 0 ) {
         conn.connect();
       } else {
         conn.connect( null, 0, timeOut * 1000 );

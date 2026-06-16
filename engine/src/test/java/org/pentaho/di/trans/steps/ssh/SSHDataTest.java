@@ -145,4 +145,32 @@ public class SSHDataTest {
     verify( connection ).connect( isNull(), eq( 0 ), eq( 100 * 1000 ) );
   }
 
+  // PDI-20898: Regression tests for timeout=0 and negative timeout handling
+  @Test
+  public void testOpenConnectionTimeoutZero_ShouldBeInfinite() throws Exception {
+    when( connection.authenticateWithPassword( username, password ) ).thenReturn( true );
+    assertNotNull( SSHData.OpenConnection( DefaultBowl.getInstance(), server, port, username, password, false, null,
+      null, 0, null, null, 0, null, null ) );
+    // PDI-20898: timeout=0 should call connect() with NO timeout (infinite), not convert to milliseconds
+    verify( connection ).connect();
+  }
+
+  @Test
+  public void testOpenConnectionNegativeTimeout_ShouldBeInfinite() throws Exception {
+    when( connection.authenticateWithPassword( username, password ) ).thenReturn( true );
+    assertNotNull( SSHData.OpenConnection( DefaultBowl.getInstance(), server, port, username, password, false, null,
+      null, -1, null, null, 0, null, null ) );
+    // PDI-20898: negative timeout should also call connect() with NO timeout (infinite)
+    verify( connection ).connect();
+  }
+
+  @Test
+  public void testOpenConnectionPositiveTimeout_ShouldConvertToMillis() throws Exception {
+    when( connection.authenticateWithPassword( username, password ) ).thenReturn( true );
+    assertNotNull( SSHData.OpenConnection( DefaultBowl.getInstance(), server, port, username, password, false, null,
+      null, 5, null, null, 0, null, null ) );
+    // PDI-20898: positive timeout should be converted to milliseconds
+    verify( connection ).connect( isNull(), eq( 0 ), eq( 5000 ) );
+  }
+
 }
